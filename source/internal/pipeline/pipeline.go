@@ -15,6 +15,7 @@ import (
 	"opencode-reasoning-extractor/internal/compliance"
 	"opencode-reasoning-extractor/internal/convert"
 	"opencode-reasoning-extractor/internal/format"
+	"opencode-reasoning-extractor/internal/ingest"
 	"opencode-reasoning-extractor/internal/model"
 	"opencode-reasoning-extractor/internal/redact"
 	"opencode-reasoning-extractor/internal/store"
@@ -62,8 +63,13 @@ type Stats struct {
 	Refusals   int
 }
 
-// Run performs the extraction.
+// Run performs the extraction. When the input is an external SessionRecord
+// dataset (a .jsonl file or a converter-output directory) it is read directly;
+// otherwise the input is treated as an opencode data directory.
 func Run(opts Options) (*Stats, error) {
+	if ingest.LooksLikeJSONL(opts.Input) {
+		return runJSONL(opts)
+	}
 	st, err := store.Open(opts.Input)
 	if err != nil {
 		return nil, err
