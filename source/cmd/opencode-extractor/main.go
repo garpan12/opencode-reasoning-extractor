@@ -21,10 +21,14 @@ func main() {
 func run(args []string) error {
 	fs := flag.NewFlagSet("opencode-extractor", flag.ContinueOnError)
 	fs.Usage = func() {
-		fmt.Fprintf(fs.Output(), `usage: opencode-extractor [flags] <opencode-data-dir> <output-dir>
+		fmt.Fprintf(fs.Output(), `usage: opencode-extractor [flags] <input> <output-dir>
 
-Extracts opencode session histories into topic-partitioned OpenAI-compatible
-JSONL datasets. Reads only the relational session/message/part tables.
+Extracts session histories into topic-partitioned OpenAI-compatible JSONL
+datasets. <input> is either an opencode data directory (the relational
+session/message/part tables are read) or an external SessionRecord dataset --
+a .jsonl file or a converter-output directory (manifest.json + sft/). External
+datasets are run through the same classification, redaction, refusal filtering,
+per-turn and RL stages so they gain turns.jsonl and rl/metadata.jsonl.
 
 flags:
 `)
